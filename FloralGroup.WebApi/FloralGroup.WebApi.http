@@ -1,0 +1,6 @@
+@FloralGroup.WebApi_HostAddress = http://localhost:5252
+
+GET {{FloralGroup.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

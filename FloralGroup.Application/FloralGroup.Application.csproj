@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FloralGroup.Domain">
+      <HintPath>..\FloralGroup.Domain\bin\Debug\net8.0\FloralGroup.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="FloralGroup.Infrastructure">
+      <HintPath>..\FloralGroup.Infrastructure\bin\Debug\net8.0\FloralGroup.Infrastructure.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
