@@ -56,7 +56,7 @@ builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<ApplicationFileStorageService>();
 builder.Services.AddHealthChecks()
     .AddCheck<FileHealthCheck>("filesystem");
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 
 
 
@@ -70,6 +70,7 @@ app.UseMiddleware<CorrelationWM>();
 //    app.UseSwaggerUI();
 //}
 app.MapGet("/", () => "API is running successfully");
+app.MapHealthChecks("/health");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
