@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using FloralGroup.Application.Services;
 using FloralGroup.Domain.Interfaces;
@@ -38,36 +39,37 @@ builder.Services
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration.GetSection("Jwt")["Issuer"],
-            ValidAudience = builder.Configuration.GetSection("Jwt")["Audience"],
-            ClockSkew = TimeSpan.FromMinutes(10),
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt")["Key"]!)
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
             ),
-            RoleClaimType = "role"
+            RoleClaimType = ClaimTypes.Role, // must match token generation
+            ClockSkew = TimeSpan.Zero
         };
     });
+builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<FileService>();
-builder.Services.AddSingleton<ApplicationFileStorageService>();
+builder.Services.AddScoped<ApplicationFileStorageService>();
 builder.Services.AddHealthChecks()
     .AddCheck<FileHealthCheck>("filesystem");
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 app.UseMiddleware<TokenValidationMW>(builder.Configuration["Jwt:Key"]);
 app.UseMiddleware<ExceptionHandlingMW>();
 app.UseMiddleware<CorrelationWM>();
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+app.MapGet("/", () => "API is running successfully");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

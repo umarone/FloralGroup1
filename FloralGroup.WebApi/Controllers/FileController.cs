@@ -23,7 +23,7 @@ namespace FloralGroup.WebApi.Controllers
             _fileStorageService = fileStorageService;
             _healthCheckService = healthCheckService;
         }
-        [HttpPost]
+        [HttpPost("UploadFile")]
         [RequestSizeLimit(104_857_600)] // 100 MB, optional
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] string? tags)
         {

@@ -19,14 +19,16 @@ namespace FloralGroup.Infrastructure.Services
         private readonly ILogger<FileService> _logger;
         private readonly long _maxFileSize;
         private readonly string[] _allowedContentTypes;
+        string directoryPath;
         public FileService(IConfiguration configuration, ILogger<FileService> logger)
         {
             _logger = logger;
 
-            _basePath = configuration["windowsPath:FileStoragePathWindows"] ?? "uploads";
-            if (!Directory.Exists(_basePath))
-                Directory.CreateDirectory(_basePath);
-
+            _basePath = configuration["windowsPath:FileStoragePathWindows"] ?? "";
+            directoryPath = Path.Combine(_basePath, "uploads");
+            if (!Directory.Exists(directoryPath))
+                Directory.CreateDirectory(directoryPath);
+            
             // Upload constraints
             _maxFileSize = configuration.GetValue<long>("FileUpload:MaxFileSizeBytes", 104857600); // default 100 MB
             _allowedContentTypes = configuration.GetSection("FileUpload:AllowedContentTypes").Get<string[]>() ?? new string[0];
@@ -41,14 +43,19 @@ namespace FloralGroup.Infrastructure.Services
                 throw new FileUploadException($"File type '{contentType}' is not allowed.");
 
             var key = Guid.NewGuid().ToString();
-            var filePath = Path.Combine(_basePath, key);
+            var filePath = Path.Combine(directoryPath, originalFileName);
 
             _logger.LogInformation("Saving file {FileName} with key {Key}", originalFileName, key);
 
             try
             {
-                await using var file = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true);
-                await fileStream.CopyToAsync(file);
+                if (!File.Exists(filePath))
+                {
+                    await using var file = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true);
+                    await fileStream.CopyToAsync(file);
+                }
+                else
+                    throw Exception("File Already Exists");
             }
             catch (Exception ex)
             {

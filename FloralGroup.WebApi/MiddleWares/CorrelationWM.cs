@@ -3,9 +3,13 @@ namespace FloralGroup.WebApi.MiddleWares
 {
     public class CorrelationWM
     {
+        private readonly RequestDelegate _next;
         private const string HeaderName = "X-Correlation-Id";
-
-        public async Task Invoke(HttpContext context, RequestDelegate next)
+        public CorrelationWM(RequestDelegate next)
+        {
+            _next = next;        
+        }
+        public async Task Invoke(HttpContext context)
         {
             var correlationId = context.Request.Headers[HeaderName].FirstOrDefault()
                                 ?? Guid.NewGuid().ToString();
@@ -14,7 +18,7 @@ namespace FloralGroup.WebApi.MiddleWares
 
             using (LogContext.PushProperty("CorrelationId", correlationId))
             {
-                await next(context);
+                await _next(context);
             }
         }
     }

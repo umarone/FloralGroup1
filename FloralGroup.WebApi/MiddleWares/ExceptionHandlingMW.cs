@@ -25,7 +25,7 @@ namespace FloralGroup.WebApi.MiddleWares
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception");
-                await WriteErrorResponse(context, 500, "Server error", "Unexpected error occurred");
+                await WriteErrorResponse(context, 500, "Server error", ex.Message);
             }
         }
         private static async Task WriteErrorResponse(HttpContext context, int status, string title, string detail)
