@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using FloralGroup.Application.Services;
 using FloralGroup.Domain.Interfaces;
 using FloralGroup.Infrastructure.DataBaseModel; // Your DbContext namespace
@@ -8,6 +9,7 @@ using FloralGroup.Infrastructure.Services;
 using FloralGroup.WebApi.HealthChecks;
 using FloralGroup.WebApi.MiddleWares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -70,7 +72,26 @@ app.UseMiddleware<CorrelationWM>();
 //    app.UseSwaggerUI();
 //}
 app.MapGet("/", () => "API is running successfully");
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, response) =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var result = JsonSerializer.Serialize(new
+        {
+            status = response.Status.ToString(),
+            checks = response.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description
+            })
+        });
+
+        await context.Response.WriteAsync(result);
+    }
+});
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

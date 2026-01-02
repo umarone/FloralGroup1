@@ -55,7 +55,7 @@ namespace FloralGroup.Infrastructure.Services
                     await fileStream.CopyToAsync(file);
                 }
                 else
-                    throw Exception("File Already Exists");
+                    throw new Exception("File Already Exists");
             }
             catch (Exception ex)
             {
